@@ -22,7 +22,7 @@ export const auth = betterAuth({
     },
   },
   disabledPaths: [
-    '/token', // desabilita o endpoint /api/auth/token (basePath + /token)
+    '/token', // desabilita o endpoint /api/auth/token
   ],
   plugins: [
     jwt({

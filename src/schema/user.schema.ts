@@ -26,3 +26,7 @@ export const userSchema = z
     message: 'As senhas devem ser iguais',
     path: ['confirmPassword'],
   })
+
+export type User = Omit<z.infer<typeof userSchema>, 'confirmPassword'> & {
+  role: 'admin' | 'user'
+}

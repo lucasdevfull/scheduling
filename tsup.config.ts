@@ -1,7 +1,7 @@
 import { defineConfig } from 'tsup'
 
 export default defineConfig({
-  entry: ['./src/index.ts'], // ponto de entrada principal
+  entry: ['./src/main.ts'], // ponto de entrada principal
   outDir: 'dist', // pasta de saída dos artefatos
   bundle: true, // agrupa todo o código em um bundle
   platform: 'node', // otimizado para Node.js

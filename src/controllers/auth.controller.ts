@@ -1,30 +1,28 @@
 import { Elysia } from 'elysia'
 import { httpSchema, loginSchema } from '@/schema/index.ts'
-import { db } from '@/db/index.ts'
-import { schema } from '@/db/schema/index.ts'
-import { eq } from 'drizzle-orm'
 import { compare } from 'bcrypt'
 import { sign } from '@/utils/jwt.ts'
 import { z } from 'zod'
+import { findAccountByEmail } from '@/repositories/find-user.repository.ts'
 
 export const authController = new Elysia({ prefix: '/auth' }).post(
   '/token',
   async ({ body, status }) => {
-    const [user] = await db
-      .select({
-        id: schema.users.id,
-        email: schema.users.email,
-        password: schema.accounts.password,
-      })
-      .from(schema.users)
-      .innerJoin(schema.accounts, eq(schema.accounts.userId, schema.users.id))
-      .where(eq(schema.users.email, body.email))
+    const [user] = await findAccountByEmail(body.email)
 
     if (!user) {
-      return
+      return status(404, {
+        statusCode: 404,
+        error: 'NOT FOUND',
+        message: 'Usuário não encontrado',
+      })
     }
     if (!(await compare(String(user.password), body.password))) {
-      return
+      return status(409, {
+        statusCode: 409,
+        error: 'CONFLIT',
+        message: 'Credênciais inválidas',
+      })
     }
     const data = await sign({
       sub: user.id,
@@ -47,6 +45,7 @@ export const authController = new Elysia({ prefix: '/auth' }).post(
           refreshToken: z.jwt(),
         }),
       }),
+      404: httpSchema,
       409: httpSchema,
       500: httpSchema,
     },
