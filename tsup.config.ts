@@ -8,5 +8,13 @@ export default defineConfig({
   target: 'es2022', // aproveita features do Node 18+
   format: ['esm'], // gera módulos ES (pode adicionar 'cjs')
   clean: true, // limpa dist/ antes de cada build
-  minify: true, // reduz tamanho e ofusca o bundle
+  minify: true, // reduz tamanho e ofusca o bundle,
+  external: [
+    '@node-rs/bcrypt',
+    // opcional: incluir platform-specific packages para evitar que o bundler tente resolvê-los
+    '@node-rs/bcrypt-android-arm64',
+    '@node-rs/bcrypt-darwin-arm64',
+    '@node-rs/bcrypt-darwin-x64',
+    '@node-rs/bcrypt-linux-x64-gnu'
+  ],
 })

@@ -1,6 +1,6 @@
 import { Elysia } from 'elysia'
 import { httpSchema, loginSchema } from '@/schema/index.ts'
-import { compare } from 'bcrypt'
+import { compare } from '@node-rs/bcrypt'
 import { sign } from '@/utils/jwt.ts'
 import { z } from 'zod'
 import { findAccountByEmail } from '@/repositories/find-user.repository.ts'
