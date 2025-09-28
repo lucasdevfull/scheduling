@@ -8,8 +8,5 @@ export default defineConfig({
   target: 'es2022', // aproveita features do Node 18+
   format: ['esm'], // gera módulos ES (pode adicionar 'cjs')
   clean: true, // limpa dist/ antes de cada build
-  sourcemap: true, // desativa source maps em produção
-  minify: false, // reduz tamanho e ofusca o bundle
-  dts: false,
-  splitting: true 
+  minify: true, // reduz tamanho e ofusca o bundle
 })

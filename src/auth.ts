@@ -3,7 +3,7 @@ import { drizzleAdapter } from 'better-auth/adapters/drizzle'
 import { admin, jwt, openAPI } from 'better-auth/plugins'
 import { db } from './db/index.ts'
 import { env } from './env.ts'
-import { hash, compare } from 'bcrypt'
+import { hash, compare, genSalt } from '@node-rs/bcrypt'
 import { randomInt } from 'node:crypto'
 
 export const auth = betterAuth({
@@ -17,7 +17,11 @@ export const auth = betterAuth({
     enabled: true,
     autoSignIn: false,
     password: {
-      hash: (password: string) => hash(password, randomInt(10, 16)),
+      hash: async (password: string) => {
+        const salt = randomInt(10, 16)
+        const rounds = await genSalt(salt)
+        return hash(password, salt, rounds)
+      },
       verify: ({ password, hash }) => compare(password, hash),
     },
   },
