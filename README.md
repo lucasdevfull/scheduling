@@ -1,4 +1,4 @@
-# Elysia with Bun runtime
+# Elysia
 
 ## Getting Started
 To get started with this template, simply paste this command into your terminal:
