@@ -6,7 +6,7 @@ export default defineConfig({
   bundle: true, // agrupa todo o código em um bundle
   platform: 'node', // otimizado para Node.js
   target: 'es2022', // aproveita features do Node 18+
-  format: ['esm'], // gera módulos ES (pode adicionar 'cjs')
+  format: ['esm', 'cjs'], // gera módulos ES (pode adicionar 'cjs')
   clean: true, // limpa dist/ antes de cada build
   minify: true, // reduz tamanho e ofusca o bundle,
   external: [
@@ -17,4 +17,15 @@ export default defineConfig({
     '@node-rs/bcrypt-darwin-x64',
     '@node-rs/bcrypt-linux-x64-gnu'
   ],
+  outExtension: ({ format }) => {
+    if (format === 'esm') {
+      return {
+        js: '.mjs'
+      }
+    } else {
+      return {
+        js: '.cjs'
+      }
+    }
+  }
 })
