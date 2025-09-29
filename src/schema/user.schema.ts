@@ -30,3 +30,5 @@ export const userSchema = z
 export type User = Omit<z.infer<typeof userSchema>, 'confirmPassword'> & {
   role: 'admin' | 'user'
 }
+
+export type Login = z.infer<typeof loginSchema>

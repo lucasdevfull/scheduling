@@ -1,10 +1,13 @@
-import { createUser } from '@/repositories/create-user.repository.ts'
-import { findUserByEmail } from '@/repositories/find-user.repository.ts'
+import { InternalServerError } from '@/common/errors.ts'
+import { UserRepository } from '@/repositories/user.repository.ts'
 import { httpSchema } from '@/schema/http.schema.ts'
 import { userSchema } from '@/schema/user.schema.ts'
+import { UserService } from '@/services/user.services.ts'
 import type { FastifyPluginAsyncZod } from 'fastify-type-provider-zod'
 
 export const userController: FastifyPluginAsyncZod = async fastify => {
+  const userRepository = new UserRepository()
+  const userService = new UserService(userRepository)
   fastify.post(
     '/admin/user',
     {
@@ -18,16 +21,8 @@ export const userController: FastifyPluginAsyncZod = async fastify => {
       },
     },
     async ({ body }, { status }) => {
-      const [userExists] = await findUserByEmail(body.email)
-      if (userExists) {
-        return status(409).send({
-          statusCode: 409,
-          error: 'CONFLIT',
-          message: 'Usuário já existente',
-        })
-      }
       try {
-        const { user } = await createUser({
+        const user = await userService.createUser({
           ...body,
           role: 'admin',
         })
@@ -37,11 +32,7 @@ export const userController: FastifyPluginAsyncZod = async fastify => {
           message: 'Usuário criado com sucesso',
         })
       } catch (error) {
-        return status(500).send({
-          statusCode: 500,
-          error: 'INTERNAL SERVER ERROR',
-          message: 'Erro interno no servidor',
-        })
+        throw new InternalServerError('Erro interno no servidor')
       }
     }
   )
@@ -58,16 +49,8 @@ export const userController: FastifyPluginAsyncZod = async fastify => {
       },
     },
     async ({ body }, { status }) => {
-      const [userExists] = await findUserByEmail(body.email)
-      if (userExists) {
-        return status(409).send({
-          statusCode: 500,
-          error: 'CONFLIT',
-          message: 'Usuário já existente',
-        })
-      }
       try {
-        const { user } = await createUser({
+        const user = await userService.createUser({
           ...body,
           role: 'user',
         })
@@ -77,11 +60,7 @@ export const userController: FastifyPluginAsyncZod = async fastify => {
           message: 'Usuário criado com sucesso',
         })
       } catch (error) {
-        return status(500).send({
-          statusCode: 500,
-          error: 'INTERNAL SERVER ERROR',
-          message: 'Erro interno no servidor',
-        })
+        throw new InternalServerError('Erro interno no servidor')
       }
     }
   )

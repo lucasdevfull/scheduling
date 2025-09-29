@@ -8,6 +8,7 @@ import {
   validatorCompiler,
   type ZodTypeProvider,
 } from 'fastify-type-provider-zod'
+import { HttpError } from './common/base/errors.ts'
 
 async function bootstrap() {
   const app = fastify().withTypeProvider<ZodTypeProvider>()
@@ -18,6 +19,16 @@ async function bootstrap() {
   app.register(userController)
 
   app.get('/', () => 'Hello word')
+
+  app.setErrorHandler(async (error, request, reply) => {
+    if (error instanceof HttpError) {
+      return reply.status(error.statusCode).send({
+        statusCode: error.statusCode,
+        error: error.error,
+        message: error.message,
+      })
+    }
+  })
 
   // if (env.NODE_ENV !== 'production') {
   //   app.use(
@@ -36,7 +47,6 @@ async function bootstrap() {
   //console.log(`🦊 Elysia is running at ${'localhost'}:${env.PORT}`)
   return app
 }
-
 
 export default async function handler(req: any, reply: any) {
   const server = await bootstrap()
