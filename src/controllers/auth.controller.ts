@@ -1,6 +1,4 @@
 import { httpSchema, loginSchema } from '@/schema/index.ts'
-import { compare } from '@node-rs/bcrypt'
-import { sign } from '@/utils/jwt.ts'
 import { z } from 'zod'
 import type { FastifyPluginAsyncZod } from 'fastify-type-provider-zod'
 import { AuthService } from '@/services/auth.services.ts'

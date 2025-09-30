@@ -8,7 +8,7 @@ export default defineConfig({
   target: 'es2022', // aproveita features do Node 18+
   format: ['esm', 'cjs'], // gera módulos ES (pode adicionar 'cjs')
   clean: true, // limpa dist/ antes de cada build
-  minify: true, // reduz tamanho e ofusca o bundle,
+  minify: false, // reduz tamanho e ofusca o bundle,
   external: [
     '@node-rs/bcrypt',
     // opcional: incluir platform-specific packages para evitar que o bundler tente resolvê-los

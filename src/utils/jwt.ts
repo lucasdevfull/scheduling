@@ -1,21 +1,6 @@
 import { env } from '@/env.ts'
 import { type JWTPayload, jwtVerify, SignJWT } from 'jose'
-// import type { JWTPayloadInput, JWTPayloadSpec } from "@elysiajs/jwt";
-// import { JWTPayload, SignJWT, type JWTVerifyOptions } from "jose";
 
-// type AllowClaimValue = string | number | boolean | null | undefined | AllowClaimValue[] | {
-//     [key: string]: AllowClaimValue;
-// };
-// type ClaimType = Record<string, AllowClaimValue>;
-
-// type NormalizedClaim = 'nbf' | 'exp' | 'iat';
-
-// type JWT = {
-//     jwt: {
-//         sign(signValue: Omit<ClaimType, NormalizedClaim> & JWTPayloadInput): Promise<string>;
-//         verify(jwt?: string, options?: JWTVerifyOptions): Promise<false | (ClaimType & Omit<JWTPayloadSpec, never>)>;
-//     }
-// }
 const secret = Buffer.from(env.BETTER_AUTH_SECRET, 'base64')
 
 export async function sign(payload: JWTPayload) {
