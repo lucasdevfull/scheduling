@@ -2,9 +2,14 @@ import { HttpError } from '@/common/base/errors.ts'
 import { env } from '@/env.ts'
 import { type JWTPayload, jwtVerify, SignJWT } from 'jose'
 
+
+export interface Payload extends JWTPayload {
+  role: 'admin' | 'user' | string 
+}
+
 const secret = Buffer.from(env.BETTER_AUTH_SECRET, 'base64')
 
-export async function sign(payload: JWTPayload) {
+export async function sign(payload: Payload) {
   const accessToken = await new SignJWT({
     exp: Math.floor(Date.now() / 1000) + 3600,
     ...payload,
@@ -30,7 +35,7 @@ export async function sign(payload: JWTPayload) {
 
 export async function verify(token: string) {
   try {
-    const { payload } = await jwtVerify(token, secret)
+    const { payload } = await jwtVerify<Payload>(token, secret)
     return payload
   } catch (error) {
     throw new HttpError(400, 'BAD REQUEST', 'Token inválido ou expirado')

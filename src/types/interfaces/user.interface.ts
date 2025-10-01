@@ -8,6 +8,7 @@ export interface UserEmail {
 
 export interface AccountEmail extends UserEmail {
   password: string | null
+  role: string | null
 }
 
 export interface IUserRepository {

@@ -24,6 +24,7 @@ export class AuthService implements IAuthService {
     }
     return sign({
       sub: user.id,
+      role: String(user.role),
       iat: Math.floor(Date.now() / 1000),
     })
   }
