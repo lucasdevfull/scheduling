@@ -1,3 +1,4 @@
+import { HttpError } from '@/common/base/errors.ts'
 import { env } from '@/env.ts'
 import { type JWTPayload, jwtVerify, SignJWT } from 'jose'
 
@@ -32,6 +33,6 @@ export async function verify(token: string) {
     const { payload } = await jwtVerify(token, secret)
     return payload
   } catch (error) {
-    throw new Error('Token inválido ou expirado')
+    throw new HttpError(400, 'BAD REQUEST', 'Token inválido ou expirado')
   }
 }

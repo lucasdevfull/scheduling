@@ -1,11 +1,16 @@
 import { auth } from '@/auth.ts'
 import { db } from '@/db/index.ts'
 import { schema } from '@/db/schema/index.ts'
-import type { User } from '@/schema/user.schema.ts'
+import type {
+  AccountEmail,
+  IUserRepository,
+  UserEmail,
+} from '@/types/interfaces/user.interface.ts'
+import type { User, UserRole } from '@/types/user.types.ts'
 import { eq } from 'drizzle-orm'
 
-export class UserRepository {
-  async findUserByEmail(email: string) {
+export class UserRepository implements IUserRepository {
+  async findUserByEmail(email: string): Promise<Array<UserEmail>> {
     return await db
       .select({
         id: schema.users.id,
@@ -15,7 +20,7 @@ export class UserRepository {
       .where(eq(schema.users.email, email))
   }
 
-  async findAccountByEmail(email: string) {
+  async findAccountByEmail(email: string): Promise<Array<AccountEmail>> {
     return db
       .select({
         id: schema.users.id,
@@ -27,7 +32,7 @@ export class UserRepository {
       .where(eq(schema.users.email, email))
   }
 
-  async createUser(data: User) {
+  async createUser(data: User): Promise<UserRole> {
     return auth.api.createUser({
       body: {
         ...data,
