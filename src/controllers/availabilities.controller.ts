@@ -43,14 +43,16 @@ export const serviceController: FastifyPluginAsyncZod = async fastify => {
     async ({ query: { limit, cursor } }, { send }) => {
       const { result, ...r } =
         await availabilitiesServices.findAllAvailabilities(limit, cursor)
-      const data = await Promise.all(result.map(({ id, name, availabilities }) => ({
-        id: encrypt(String(id)),
-        name,
-        availabilities: availabilities.map(({ id, ...a }) => ({
+      const data = await Promise.all(
+        result.map(({ id, name, availabilities }) => ({
           id: encrypt(String(id)),
-          ...a,
-        })),
-      })))
+          name,
+          availabilities: availabilities.map(({ id, ...a }) => ({
+            id: encrypt(String(id)),
+            ...a,
+          })),
+        }))
+      )
       return send({
         statusCode: 200,
         error: null,

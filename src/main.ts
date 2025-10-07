@@ -8,7 +8,7 @@ import {
   validatorCompiler,
   type ZodTypeProvider,
 } from 'fastify-type-provider-zod'
-import { HttpError } from './common/base/errors.ts'
+import { errorHandler } from './error.handler.ts'
 
 async function bootstrap() {
   const app = fastify().withTypeProvider<ZodTypeProvider>()
@@ -20,15 +20,7 @@ async function bootstrap() {
 
   app.get('/', () => 'Hello word')
 
-  app.setErrorHandler(async (error, request, reply) => {
-    if (error instanceof HttpError) {
-      return reply.status(error.statusCode).send({
-        statusCode: error.statusCode,
-        error: error.error,
-        message: error.message,
-      })
-    }
-  })
+  app.setErrorHandler(errorHandler)
 
   // if (env.NODE_ENV !== 'production') {
   //   app.use(
