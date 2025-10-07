@@ -2,9 +2,8 @@ import { HttpError } from '@/common/base/errors.ts'
 import { env } from '@/env.ts'
 import { type JWTPayload, jwtVerify, SignJWT } from 'jose'
 
-
 export interface Payload extends JWTPayload {
-  role: 'admin' | 'user' | string 
+  role: 'admin' | 'user' | string
 }
 
 const secret = Buffer.from(env.BETTER_AUTH_SECRET, 'base64')

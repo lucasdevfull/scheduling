@@ -8,6 +8,7 @@
     "start": "node --env-file=.env dist/main.js",
     "build": "tsc && tsup",
     "format": "biome format --write src",
+    "seed": "tsx --env-file=.env src/seed.ts",
     "check": "biome check --write src",
     "generate": "drizzle-kit generate",
     "migrate": "drizzle-kit migrate"

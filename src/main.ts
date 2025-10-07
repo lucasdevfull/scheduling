@@ -15,8 +15,8 @@ async function bootstrap() {
 
   app.setValidatorCompiler(validatorCompiler)
   app.setSerializerCompiler(serializerCompiler)
-  app.register(authController)
-  app.register(userController)
+  app.register(authController, { prefix: '/api/auth' })
+  app.register(userController, { prefix: '/api' })
 
   app.get('/', () => 'Hello word')
 

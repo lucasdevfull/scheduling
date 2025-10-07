@@ -26,7 +26,7 @@ export class UserRepository implements IUserRepository {
         id: schema.users.id,
         email: schema.users.email,
         password: schema.accounts.password,
-        role: schema.users.role
+        role: schema.users.role,
       })
       .from(schema.users)
       .innerJoin(schema.accounts, eq(schema.accounts.userId, schema.users.id))
