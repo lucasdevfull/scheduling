@@ -1,7 +1,7 @@
 import { createCipheriv, createDecipheriv, randomBytes } from 'node:crypto'
 
 export function encrypt(value: string) {
-  const key = Buffer.from(process.env.ENCRYPT_KEY!, 'base64')
+  const key = Buffer.from(process.env.ENCRYPT_KEY, 'base64')
   const iv = randomBytes(12)
   const cipher = createCipheriv('chacha20-poly1305', key, iv, {
     authTagLength: 16,
@@ -16,7 +16,7 @@ export function encrypt(value: string) {
 }
 
 export function decrypt(valueEncrypted: string) {
-  const key = Buffer.from(process.env.ENCRYPT_KEY!, 'base64')
+  const key = Buffer.from(process.env.ENCRYPT_KEY, 'base64')
   try {
     const buf = Buffer.from(valueEncrypted, 'hex')
     const iv = buf.subarray(0, 12)

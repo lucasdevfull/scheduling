@@ -2,7 +2,7 @@ import { AvailabilitiesRepository } from '@/repositories/availabilities.reposito
 import { httpSchema } from '@/schema/http.schema.ts'
 import { serviceSchema } from '@/schema/service.schema.ts'
 import { AvailabilitiesServices } from '@/services/availabilites.services.ts'
-import { encrypt } from '@/utils/cripto.ts'
+import { encrypt } from '@/utils/crypto.ts'
 import type { FastifyPluginAsyncZod } from 'fastify-type-provider-zod'
 import { z } from 'zod'
 
