@@ -1,1 +1,0 @@
-ALTER TABLE "availabilities" ADD CONSTRAINT "time_check" CHECK ("availabilities"."endTime" > "availabilities"."startTime");
