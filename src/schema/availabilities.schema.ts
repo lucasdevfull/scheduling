@@ -1,3 +1,6 @@
+import { BadRequestError } from '@/common/errors.ts'
+import { decrypt } from '@/utils/crypto.ts'
+import { zDecryptStringToNumber } from '@/utils/index.ts'
 import { z } from 'zod'
 
 const regex = /^([01]\d|2[0-3]):([0-5]\d)$/
@@ -25,4 +28,12 @@ export const serviceSchema = z.object({
   availabilities: z
     .array(availabilitieSchema)
     .min(1, 'Pelo menos uma disponibilidade é necessária'),
+})
+export const updateServiceSchema = serviceSchema.extend({
+  id: zDecryptStringToNumber,
+  availabilities: z.array(
+    availabilitieSchema.extend({
+      id: zDecryptStringToNumber,
+    })
+  ),
 })

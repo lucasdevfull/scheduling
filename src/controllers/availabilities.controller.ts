@@ -1,8 +1,10 @@
+import { BadRequestError } from '@/common/errors.ts'
 import { AvailabilitiesRepository } from '@/repositories/availabilities.repository.ts'
 import { httpSchema } from '@/schema/http.schema.ts'
-import { serviceSchema } from '@/schema/service.schema.ts'
+import { serviceSchema, updateServiceSchema } from '@/schema/availabilities.schema.ts'
 import { AvailabilitiesServices } from '@/services/availabilites.services.ts'
-import { encrypt } from '@/utils/crypto.ts'
+import { decrypt, encrypt } from '@/utils/crypto.ts'
+import { zDecryptStringToNumber } from '@/utils/index.ts'
 import type { FastifyPluginAsyncZod } from 'fastify-type-provider-zod'
 import { z } from 'zod'
 
@@ -90,5 +92,17 @@ export const serviceController: FastifyPluginAsyncZod = async fastify => {
         },
       })
     }
+  )
+  fastify.put(
+    '/services/:serviceId',
+    {
+      schema: {
+        params: z.object({
+          serviceId: zDecryptStringToNumber
+        }),
+        body: updateServiceSchema,
+      },
+    },
+    async (request, reply) => {}
   )
 }
