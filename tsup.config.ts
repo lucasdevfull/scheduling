@@ -15,7 +15,9 @@ export default defineConfig({
     '@node-rs/bcrypt-android-arm64',
     '@node-rs/bcrypt-darwin-arm64',
     '@node-rs/bcrypt-darwin-x64',
-    '@node-rs/bcrypt-linux-x64-gnu'
+    '@node-rs/bcrypt-linux-x64-gnu',
+    '@prisma/client',
+    '.prisma',
   ],
   outExtension: ({ format }) => {
     if (format === 'esm') {

@@ -1,5 +1,3 @@
-import { BadRequestError } from '@/common/errors.ts'
-import { decrypt } from '@/utils/crypto.ts'
 import { zDecryptStringToNumber } from '@/utils/index.ts'
 import { z } from 'zod'
 
@@ -32,7 +30,7 @@ export const serviceSchema = z.object({
 export const updateServiceSchema = serviceSchema.extend({
   id: zDecryptStringToNumber,
   availabilities: z.array(
-    availabilitieSchema.extend({
+    availabilitieSchema.safeExtend({
       id: zDecryptStringToNumber,
     })
   ),

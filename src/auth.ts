@@ -1,16 +1,16 @@
 import { betterAuth } from 'better-auth'
-import { drizzleAdapter } from 'better-auth/adapters/drizzle'
 import { admin, jwt, openAPI } from 'better-auth/plugins'
-import { db } from './db/index.ts'
+import { prisma } from './db/index.ts'
 import { env } from './env.ts'
 import { hash, compare, genSalt } from '@node-rs/bcrypt'
 import { randomInt } from 'node:crypto'
+import { prismaAdapter } from 'better-auth/adapters/prisma'
 
 export const auth = betterAuth({
   secret: env.BETTER_AUTH_SECRET,
   basePath: '/auth',
-  database: drizzleAdapter(db, {
-    provider: 'pg',
+  database: prismaAdapter(prisma, {
+    provider: 'postgresql',
     usePlural: true,
   }),
   emailAndPassword: {

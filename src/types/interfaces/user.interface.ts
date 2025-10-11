@@ -12,7 +12,7 @@ export interface AccountEmail extends UserEmail {
 }
 
 export interface IUserRepository {
-  findUserByEmail(email: string): Promise<Array<UserEmail>>
+  findUserByEmail(email: string): Promise<UserEmail | null>
   findAccountByEmail(email: string): Promise<Array<AccountEmail>>
   createUser(data: User): Promise<UserRole>
 }

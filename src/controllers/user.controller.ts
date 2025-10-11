@@ -1,4 +1,3 @@
-import { InternalServerError } from '@/common/errors.ts'
 import { UserRepository } from '@/repositories/user.repository.ts'
 import { httpSchema } from '@/schema/http.schema.ts'
 import { userSchema } from '@/schema/user.schema.ts'
@@ -12,6 +11,7 @@ export const userController: FastifyPluginAsyncZod = async fastify => {
     '/admin/user',
     {
       schema: {
+        tags: ['user'],
         body: userSchema,
         response: {
           201: httpSchema,
@@ -20,26 +20,23 @@ export const userController: FastifyPluginAsyncZod = async fastify => {
         },
       },
     },
-    async ({ body }, { status }) => {
-      try {
-        const user = await userService.createUser({
-          ...body,
-          role: 'admin',
-        })
-        return status(201).send({
-          statusCode: 201,
-          error: null,
-          message: 'Usuário criado com sucesso',
-        })
-      } catch (error) {
-        throw new InternalServerError('Erro interno no servidor')
-      }
+    async ({ body }, reply) => {
+      const user = await userService.createUser({
+        ...body,
+        role: 'admin',
+      })
+      return reply.status(201).send({
+        statusCode: 201,
+        error: null,
+        message: 'Usuário criado com sucesso',
+      })
     }
   )
   fastify.post(
     '/user',
     {
       schema: {
+        tags: ['user'],
         body: userSchema,
         response: {
           201: httpSchema,
@@ -48,20 +45,16 @@ export const userController: FastifyPluginAsyncZod = async fastify => {
         },
       },
     },
-    async ({ body }, { status }) => {
-      try {
-        const user = await userService.createUser({
-          ...body,
-          role: 'user',
-        })
-        return status(201).send({
-          statusCode: 201,
-          error: null,
-          message: 'Usuário criado com sucesso',
-        })
-      } catch (error) {
-        throw new InternalServerError('Erro interno no servidor')
-      }
+    async ({ body }, reply) => {
+      const user = await userService.createUser({
+        ...body,
+        role: 'user',
+      })
+      return reply.status(201).send({
+        statusCode: 201,
+        error: null,
+        message: 'Usuário criado com sucesso',
+      })
     }
   )
 }

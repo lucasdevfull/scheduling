@@ -1,0 +1,12 @@
+model Availability {
+  id        Int      @id @default(autoincrement())
+  serviceId Int
+  dayId     Int
+  startTime String // Prisma não tem tipo TIME nativo, usa String ou DateTime dependendo do caso
+  endTime   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+
+  service Service @relation(fields: [serviceId], references: [id], onDelete: Restrict)
+  day     Day     @relation(fields: [dayId], references: [id], onDelete: Restrict)
+}

@@ -1,10 +1,11 @@
-import { BadRequestError } from '@/common/errors.ts'
 import { AvailabilitiesRepository } from '@/repositories/availabilities.repository.ts'
 import { httpSchema } from '@/schema/http.schema.ts'
-import { serviceSchema, updateServiceSchema } from '@/schema/availabilities.schema.ts'
+import {
+  serviceSchema,
+  updateServiceSchema,
+} from '@/schema/availabilities.schema.ts'
 import { AvailabilitiesServices } from '@/services/availabilites.services.ts'
 import { decrypt, encrypt } from '@/utils/crypto.ts'
-import { zDecryptStringToNumber } from '@/utils/index.ts'
 import type { FastifyPluginAsyncZod } from 'fastify-type-provider-zod'
 import { z } from 'zod'
 
@@ -14,35 +15,40 @@ export const serviceController: FastifyPluginAsyncZod = async fastify => {
     availabilitiesRepository
   )
   fastify.get(
-    'services',
+    '/services',
     {
       schema: {
+        tags: ['services'],
         querystring: z.object({
           limit: z.coerce.number().default(20),
           cursor: z.coerce.number().default(0),
         }),
 
-        response: httpSchema.extend(
-          z
-            .array(
-              z.object({
-                id: z.string(),
-                name: z.string(),
-                availabilities: z.array(
-                  z.object({
-                    id: z.string(),
-                    day: z.number(),
-                    startTime: z.string(),
-                    endTime: z.string(),
-                  })
-                ),
-              })
-            )
-            .optional()
-        ),
+        response: {
+          200: httpSchema.extend({
+            data: z
+              .array(
+                z.object({
+                  id: z.string(),
+                  name: z.string(),
+                  availabilities: z.array(
+                    z.object({
+                      id: z.string(),
+                      dayId: z.number(),
+                      startTime: z.string(),
+                      endTime: z.string(),
+                    })
+                  ),
+                })
+              )
+              .optional(),
+            nextCursor: z.number().nullable(),
+            hasNextPage: z.boolean(),
+          }),
+        },
       },
     },
-    async ({ query: { limit, cursor } }, { send }) => {
+    async ({ query: { limit, cursor } }, reply) => {
       const { result, ...r } =
         await availabilitiesServices.findAllAvailabilities(limit, cursor)
       const data = await Promise.all(
@@ -55,20 +61,21 @@ export const serviceController: FastifyPluginAsyncZod = async fastify => {
           })),
         }))
       )
-      return send({
+      console.log(result)
+      return reply.send({
         statusCode: 200,
         error: null,
-        data: {
-          data,
-          ...r,
-        },
+        message: '',
+        data,
+        ...r,
       })
     }
   )
   fastify.post(
-    'services',
+    '/services',
     {
       schema: {
+        tags: ['services'],
         body: serviceSchema,
         response: {
           201: httpSchema.extend({
@@ -80,15 +87,15 @@ export const serviceController: FastifyPluginAsyncZod = async fastify => {
         },
       },
     },
-    async ({ body }, { status }) => {
-      const { serviceId } =
+    async ({ body }, reply) => {
+      const { id } =
         await availabilitiesServices.createAvailiabilities(body)
-      return status(201).send({
+      return reply.status(201).send({
         statusCode: 201,
         error: null,
         message: 'Serviço criado com sucesso',
         data: {
-          serviceId: encrypt(String(serviceId)),
+          serviceId: encrypt(String(id)),
         },
       })
     }
@@ -97,8 +104,9 @@ export const serviceController: FastifyPluginAsyncZod = async fastify => {
     '/services/:serviceId',
     {
       schema: {
+        tags: ['services'],
         params: z.object({
-          serviceId: zDecryptStringToNumber
+          serviceId: z.string(),
         }),
         body: updateServiceSchema,
       },

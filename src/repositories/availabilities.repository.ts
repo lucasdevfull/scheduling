@@ -1,38 +1,23 @@
-import { db } from '@/db/index.ts'
-import { schema } from '@/db/schema/index.ts'
+import { prisma } from '@/db/index.ts'
 import { Service } from '@/types/availabilities.types.ts'
-import { eq, gt, sql } from 'drizzle-orm'
 
 export class AvailabilitiesRepository {
   async findAll(limit: number, cursor: number) {
-    const result = await db
-      .select({
-        id: schema.service.id,
-        name: schema.service.name,
-        availabilities: sql<
-          {
-            id: number
-            day: number
-            startTime: string
-            endTime: string
-          }[]
-        >`json_agg(
-          jsonb_build_object(
-            'id', availabilities.id,
-            'day', availabilities.day,
-            'startTime', availabilities.startTime,
-            'endTime', availabilities.endTime,
-          )
-        )`,
-      })
-      .from(schema.service)
-      .where(cursor ? gt(schema.service.id, cursor) : undefined)
-      .limit(limit + 1)
-      .leftJoin(
-        schema.availabilities,
-        eq(schema.availabilities.serviceId, schema.service.id)
-      )
-      .groupBy(schema.service.id, schema.service.name)
+    const result = await prisma.service.findMany({
+      where: cursor ? { id: { gt: cursor } } : undefined,
+      take: limit + 1,
+      orderBy: { id: 'asc' },
+      include: {
+        availabilities: {
+          select: {
+            id: true,
+            dayId: true,
+            startTime: true,
+            endTime: true,
+          },
+        },
+      },
+    })
 
     return {
       result,
@@ -42,20 +27,55 @@ export class AvailabilitiesRepository {
   }
 
   async create({ name, availabilities }: Service) {
-    return db.transaction(async tx => {
-      const [{ id }] = await tx
-        .insert(schema.service)
-        .values({ name })
-        .returning()
-      return tx
-        .insert(schema.availabilities)
-        .values(
-          availabilities.map(a => ({
-            serviceId: id,
-            ...a,
-          }))
-        )
-        .returning()
+    return await prisma.$transaction(async tx => {
+      const service = await tx.service.create({
+        data: {
+          name,
+          availabilities: {
+            create: availabilities.map(a => ({
+              dayId: a.day,
+              startTime: a.startTime,
+              endTime: a.endTime,
+            })),
+          },
+        },
+        include: { availabilities: true }, // retorna service + availabilities
+      })
+      return service
     })
+  }
+
+  async findById(id: number) {
+    const data = await prisma.service.findUnique({
+      where: { id },
+      include: {
+        availabilities: {
+          select: {
+            id: true,
+            dayId: true,
+            startTime: true,
+            endTime: true,
+          },
+        },
+      },
+    })
+    return data
+  }
+
+  async findByName(name: string) {
+    const data = await prisma.service.findMany({
+      where: { name },
+      include: {
+        availabilities: {
+          select: {
+            id: true,
+            dayId: true,
+            startTime: true,
+            endTime: true,
+          },
+        },
+      },
+    })
+    return data
   }
 }

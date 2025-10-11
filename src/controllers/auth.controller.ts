@@ -8,7 +8,7 @@ export const authController: FastifyPluginAsyncZod = async fastify => {
   const userRepository = new UserRepository()
   const authService = new AuthService(userRepository)
   fastify.post(
-    '/token',
+    '/auth/token',
     {
       schema: {
         body: loginSchema,
@@ -26,9 +26,10 @@ export const authController: FastifyPluginAsyncZod = async fastify => {
         },
       },
     },
-    async ({ body }, { status }) => {
+    async ({ body }, reply) => {
+      const parse = loginSchema.parse(body)
       const data = await authService.generate(body)
-      return status(201).send({
+      return reply.status(201).send({
         statusCode: 201,
         error: null,
         message: 'Usuário logado com sucesso',
