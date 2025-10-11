@@ -28,7 +28,7 @@ export const serviceSchema = z.object({
     .min(1, 'Pelo menos uma disponibilidade é necessária'),
 })
 export const updateServiceSchema = serviceSchema.extend({
-  id: zDecryptStringToNumber,
+  //id: zDecryptStringToNumber,
   availabilities: z.array(
     availabilitieSchema.safeExtend({
       id: zDecryptStringToNumber,

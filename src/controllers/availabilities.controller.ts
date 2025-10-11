@@ -88,8 +88,7 @@ export const serviceController: FastifyPluginAsyncZod = async fastify => {
       },
     },
     async ({ body }, reply) => {
-      const { id } =
-        await availabilitiesServices.createAvailiabilities(body)
+      const { id } = await availabilitiesServices.createAvailiabilities(body)
       return reply.status(201).send({
         statusCode: 201,
         error: null,

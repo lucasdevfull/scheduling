@@ -1,5 +1,5 @@
 import { prisma } from '@/db/index.ts'
-import { Service } from '@/types/availabilities.types.ts'
+import { Service, UpdateService } from '@/types/availabilities.types.ts'
 
 export class AvailabilitiesRepository {
   async findAll(limit: number, cursor: number) {
@@ -27,7 +27,7 @@ export class AvailabilitiesRepository {
   }
 
   async create({ name, availabilities }: Service) {
-    return await prisma.$transaction(async tx => {
+    return prisma.$transaction(async tx => {
       const service = await tx.service.create({
         data: {
           name,
@@ -62,8 +62,15 @@ export class AvailabilitiesRepository {
     return data
   }
 
+  async findAvailabilitiesById(id: number, serviceId: number) {
+    const data = await prisma.availability.findUnique({
+      where: { id, serviceId },
+    })
+    return data
+  }
+
   async findByName(name: string) {
-    const data = await prisma.service.findMany({
+    const data = await prisma.service.findFirst({
       where: { name },
       include: {
         availabilities: {
@@ -77,5 +84,46 @@ export class AvailabilitiesRepository {
       },
     })
     return data
+  }
+  async update(id: number, data: UpdateService) {
+    return prisma.service.update({
+      where: { id },
+      data: {
+        name: data.name,
+        availabilities: {
+          // Itera sobre cada disponibilidade recebida
+          upsert: data.availabilities.map(a => ({
+            where: { id: a.id ?? 0 }, // se não tiver id, esse valor não vai achar nada
+            update: {
+              dayId: a.day,
+              startTime: a.startTime,
+              endTime: a.endTime,
+            },
+            create: {
+              dayId: a.day,
+              startTime: a.startTime,
+              endTime: a.endTime,
+            },
+          })),
+        },
+      },
+      include: { availabilities: true },
+    })
+  }
+  async delete(id: number) {
+    return prisma.service.delete({
+      where: {
+        id,
+      },
+    })
+  }
+
+  async deleteAvailabilities(id: number, serviceId: number) {
+    return prisma.availability.delete({
+      where: {
+        serviceId,
+        id,
+      },
+    })
   }
 }

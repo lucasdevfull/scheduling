@@ -1,8 +1,6 @@
 import { ConflictError } from '@/common/errors.ts'
 import { UserRepository } from '@/repositories/user.repository.ts'
-import type {
-  IUserService,
-} from '@/types/interfaces/user.interface.ts'
+import type { IUserService } from '@/types/interfaces/user.interface.ts'
 import type { User } from '@/types/user.types.ts'
 import type { UserWithRole } from 'better-auth/plugins'
 

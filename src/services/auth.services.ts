@@ -1,8 +1,6 @@
 import { ConflictError, NotFoundError } from '@/common/errors.ts'
 import { UserRepository } from '@/repositories/user.repository.ts'
-import type {
-  IAuthService,
-} from '@/types/interfaces/user.interface.ts'
+import type { IAuthService } from '@/types/interfaces/user.interface.ts'
 import type { Login, Token } from '@/types/user.types.ts'
 import { sign } from '@/utils/jwt.ts'
 import { compare } from '@node-rs/bcrypt'
@@ -18,7 +16,10 @@ export class AuthService implements IAuthService {
     if (!user) {
       throw new NotFoundError('Usuário não encontrado')
     }
-    const isValid = await compare(data.password, String(user.accounts[0].password))
+    const isValid = await compare(
+      data.password,
+      String(user.accounts[0].password)
+    )
     if (!isValid) {
       throw new ConflictError('Credênciais inválidas')
     }

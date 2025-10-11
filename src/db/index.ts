@@ -1,4 +1,4 @@
-import { PrismaClient } from "@prisma/client"
+import { PrismaClient } from '@prisma/client'
 
 // export const db = drizzle(env.DATABASE_URL, { schema, casing: 'snake_case' })
 export const prisma = new PrismaClient({
