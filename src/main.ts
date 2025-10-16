@@ -1,5 +1,5 @@
 import { env } from './env.ts'
-import fastify from 'fastify'
+import { fastify } from 'fastify'
 import {
   jsonSchemaTransform,
   serializerCompiler,

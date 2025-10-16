@@ -2,8 +2,8 @@ model Availability {
   id        Int      @id @default(autoincrement())
   serviceId Int
   dayId     Int
-  startTime String // Prisma não tem tipo TIME nativo, usa String ou DateTime dependendo do caso
-  endTime   String
+  startTime DateTime @db.Time(0) // Prisma não tem tipo TIME nativo, usa String ou DateTime dependendo do caso
+  endTime   DateTime @db.Time(0)
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now())
 

@@ -1,5 +1,6 @@
 import { prisma } from '@/db/index.ts'
 import { Service, UpdateService } from '@/types/availabilities.types.ts'
+import { srtToTime } from '@/utils/datetime.ts'
 
 export class AvailabilitiesRepository {
   async findAll(limit: number, cursor: number) {
@@ -33,9 +34,9 @@ export class AvailabilitiesRepository {
           name,
           availabilities: {
             create: availabilities.map(a => ({
-              dayId: a.day,
-              startTime: a.startTime,
-              endTime: a.endTime,
+              dayId: a.dayId,
+              startTime: srtToTime(a.startTime),
+              endTime: srtToTime(a.endTime),
             })),
           },
         },
@@ -95,19 +96,30 @@ export class AvailabilitiesRepository {
           upsert: data.availabilities.map(a => ({
             where: { id: a.id ?? 0 }, // se não tiver id, esse valor não vai achar nada
             update: {
-              dayId: a.day,
-              startTime: a.startTime,
-              endTime: a.endTime,
+              dayId: a.dayId,
+              startTime: srtToTime(a.startTime),
+              endTime: srtToTime(a.endTime),
             },
             create: {
-              dayId: a.day,
-              startTime: a.startTime,
-              endTime: a.endTime,
+              dayId: a.dayId,
+              startTime: srtToTime(a.startTime),
+              endTime: srtToTime(a.endTime),
             },
           })),
         },
       },
-      include: { availabilities: true },
+      include: {
+        availabilities: {
+          omit: {
+            serviceId: true,
+            createdAt: true,
+            updatedAt: true,
+          },
+        },
+      },
+      omit: {
+        createdAt: true,
+      },
     })
   }
   async delete(id: number) {

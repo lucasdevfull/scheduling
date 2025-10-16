@@ -1,11 +1,10 @@
-import { zDecryptStringToNumber } from '@/utils/index.ts'
 import { z } from 'zod'
 
 const regex = /^([01]\d|2[0-3]):([0-5]\d)$/
 
 const availabilitieSchema = z
   .object({
-    day: z.number(),
+    dayId: z.number(),
     startTime: z.string().regex(regex),
     endTime: z.string().regex(regex),
   })
@@ -28,10 +27,9 @@ export const serviceSchema = z.object({
     .min(1, 'Pelo menos uma disponibilidade é necessária'),
 })
 export const updateServiceSchema = serviceSchema.extend({
-  //id: zDecryptStringToNumber,
   availabilities: z.array(
     availabilitieSchema.safeExtend({
-      id: zDecryptStringToNumber,
+      id: z.number(),
     })
   ),
 })

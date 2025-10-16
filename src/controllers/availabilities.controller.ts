@@ -5,7 +5,6 @@ import {
   updateServiceSchema,
 } from '@/schema/availabilities.schema.ts'
 import { AvailabilitiesServices } from '@/services/availabilites.services.ts'
-import { decrypt, encrypt } from '@/utils/crypto.ts'
 import type { FastifyPluginAsyncZod } from 'fastify-type-provider-zod'
 import { z } from 'zod'
 
@@ -29,21 +28,22 @@ export const serviceController: FastifyPluginAsyncZod = async fastify => {
             data: z
               .array(
                 z.object({
-                  id: z.string(),
+                  id: z.number(),
                   name: z.string(),
+                  //createdAt: z.iso.datetime(),
                   availabilities: z.array(
                     z.object({
-                      id: z.string(),
+                      id: z.number(),
                       dayId: z.number(),
-                      startTime: z.string(),
-                      endTime: z.string(),
+                      startTime: z.date(),
+                      endTime: z.date(),
                     })
                   ),
                 })
               )
               .optional(),
-            nextCursor: z.number().nullable(),
             hasNextPage: z.boolean(),
+            nextCursor: z.number().nullable(),
           }),
         },
       },
@@ -51,22 +51,11 @@ export const serviceController: FastifyPluginAsyncZod = async fastify => {
     async ({ query: { limit, cursor } }, reply) => {
       const { result, ...r } =
         await availabilitiesServices.findAllAvailabilities(limit, cursor)
-      const data = await Promise.all(
-        result.map(({ id, name, availabilities }) => ({
-          id: encrypt(String(id)),
-          name,
-          availabilities: availabilities.map(({ id, ...a }) => ({
-            id: encrypt(String(id)),
-            ...a,
-          })),
-        }))
-      )
-      console.log(result)
       return reply.send({
         statusCode: 200,
         error: null,
         message: '',
-        data,
+        data: result,
         ...r,
       })
     }
@@ -80,7 +69,7 @@ export const serviceController: FastifyPluginAsyncZod = async fastify => {
         response: {
           201: httpSchema.extend({
             data: z.object({
-              serviceId: z.string(),
+              serviceId: z.number(),
             }),
           }),
           409: httpSchema,
@@ -94,7 +83,7 @@ export const serviceController: FastifyPluginAsyncZod = async fastify => {
         error: null,
         message: 'Serviço criado com sucesso',
         data: {
-          serviceId: encrypt(String(id)),
+          serviceId: id,
         },
       })
     }
@@ -105,11 +94,56 @@ export const serviceController: FastifyPluginAsyncZod = async fastify => {
       schema: {
         tags: ['services'],
         params: z.object({
-          serviceId: z.string(),
+          serviceId: z.number(),
         }),
         body: updateServiceSchema,
+        response: {
+          200: httpSchema.extend({
+            data: updateServiceSchema.extend({
+              id: z.number(),
+              availabilities: z.array(
+                z.object({
+                  id: z.number(),
+                  dayId: z.number(),
+                  startTime: z.date(),
+                  endTime: z.date(),
+                })
+              ),
+            }),
+          }),
+        },
       },
     },
-    async (request, reply) => {}
+    async ({ body, params: { serviceId } }, reply) => {
+      const data = await availabilitiesServices.updateService(serviceId, body)
+      return reply.send({
+        statusCode: 200,
+        error: null,
+        message: 'Serviço atualizado com sucesso',
+        data,
+      })
+    }
+  )
+  fastify.delete(
+    '/services/:serviceId',
+    {
+      schema: {
+        tags: ['services'],
+        params: z.object({
+          serviceId: z.number(),
+        }),
+        response: {
+          204: httpSchema,
+        },
+      },
+    },
+    async ({ params: { serviceId } }, reply) => {
+      const { message } = await availabilitiesServices.delete(serviceId)
+      return reply.status(204).send({
+        statusCode: 204,
+        error: null,
+        message,
+      })
+    }
   )
 }

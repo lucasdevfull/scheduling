@@ -10,8 +10,8 @@
     "format": "biome format --write src",
     "seed": "tsx --env-file=.env src/seed.ts",
     "check": "biome check --write src",
-    "generate": "drizzle-kit generate",
-    "migrate": "drizzle-kit migrate"
+    "generate": "prisma generate",
+    "migrate": "prisma migrate dev"
   },
   "dependencies": {
     "@node-rs/bcrypt": "^1.10.7",
