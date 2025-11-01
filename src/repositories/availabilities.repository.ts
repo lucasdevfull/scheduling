@@ -142,11 +142,10 @@
 // }
 
 import { HttpError } from '@/common/base/errors.ts'
-import { db, prisma } from '@/db/index.ts'
+import { db } from '@/db/index.ts'
 import { Service, UpdateService } from '@/types/availabilities.types.ts'
 import { srtToTime } from '@/utils/datetime.ts'
 import { getNextId } from '@/utils/index.ts'
-import { v7 } from 'uuid'
 
 export class AvailabilitiesRepository {
   async findAll(limit: number, cursor?: number) {
