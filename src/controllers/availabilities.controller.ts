@@ -7,6 +7,7 @@ import {
 import { AvailabilitiesServices } from '@/services/availabilites.services.ts'
 import type { FastifyPluginAsyncZod } from 'fastify-type-provider-zod'
 import { z } from 'zod'
+import { loginRequiredHook } from '@/hooks/login-required.hook.ts'
 
 export const serviceController: FastifyPluginAsyncZod = async fastify => {
   const availabilitiesRepository = new AvailabilitiesRepository()
@@ -19,7 +20,7 @@ export const serviceController: FastifyPluginAsyncZod = async fastify => {
       schema: {
         tags: ['services'],
         querystring: z.object({
-          limit: z.coerce.number().default(20),
+          limit: z.coerce.number().default(5),
           cursor: z.coerce.number().default(0),
         }),
 
@@ -30,13 +31,12 @@ export const serviceController: FastifyPluginAsyncZod = async fastify => {
                 z.object({
                   id: z.number(),
                   name: z.string(),
-                  //createdAt: z.iso.datetime(),
                   availabilities: z.array(
                     z.object({
                       id: z.number(),
                       dayId: z.number(),
-                      startTime: z.date(),
-                      endTime: z.date(),
+                      startTime: z.iso.datetime(),
+                      endTime: z.iso.datetime(),
                     })
                   ),
                 })
@@ -47,15 +47,18 @@ export const serviceController: FastifyPluginAsyncZod = async fastify => {
           }),
         },
       },
+      onRequest: [loginRequiredHook],
     },
     async ({ query: { limit, cursor } }, reply) => {
-      const { result, ...r } =
-        await availabilitiesServices.findAllAvailabilities(limit, cursor)
+      const { data, ...r } = await availabilitiesServices.findAllAvailabilities(
+        limit,
+        cursor
+      )
       return reply.send({
         statusCode: 200,
         error: null,
         message: '',
-        data: result,
+        data,
         ...r,
       })
     }
@@ -75,6 +78,7 @@ export const serviceController: FastifyPluginAsyncZod = async fastify => {
           409: httpSchema,
         },
       },
+      //onRequest: [loginRequiredHook],
     },
     async ({ body }, reply) => {
       const { id } = await availabilitiesServices.createAvailiabilities(body)
@@ -94,7 +98,7 @@ export const serviceController: FastifyPluginAsyncZod = async fastify => {
       schema: {
         tags: ['services'],
         params: z.object({
-          serviceId: z.number(),
+          serviceId: z.coerce.number(),
         }),
         body: updateServiceSchema,
         response: {
@@ -105,14 +109,15 @@ export const serviceController: FastifyPluginAsyncZod = async fastify => {
                 z.object({
                   id: z.number(),
                   dayId: z.number(),
-                  startTime: z.date(),
-                  endTime: z.date(),
+                  startTime: z.iso.datetime(),
+                  endTime: z.iso.datetime(),
                 })
               ),
             }),
           }),
         },
       },
+      onRequest: [loginRequiredHook],
     },
     async ({ body, params: { serviceId } }, reply) => {
       const data = await availabilitiesServices.updateService(serviceId, body)
@@ -120,7 +125,7 @@ export const serviceController: FastifyPluginAsyncZod = async fastify => {
         statusCode: 200,
         error: null,
         message: 'Serviço atualizado com sucesso',
-        data,
+        data: data!,
       })
     }
   )
@@ -130,20 +135,14 @@ export const serviceController: FastifyPluginAsyncZod = async fastify => {
       schema: {
         tags: ['services'],
         params: z.object({
-          serviceId: z.number(),
+          serviceId: z.coerce.number(),
         }),
-        response: {
-          204: httpSchema,
-        },
       },
+      onRequest: [loginRequiredHook],
     },
     async ({ params: { serviceId } }, reply) => {
-      const { message } = await availabilitiesServices.delete(serviceId)
-      return reply.status(204).send({
-        statusCode: 204,
-        error: null,
-        message,
-      })
+      await availabilitiesServices.delete(serviceId)
+      return reply.status(204)
     }
   )
 }

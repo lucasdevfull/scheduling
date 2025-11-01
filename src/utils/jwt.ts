@@ -2,7 +2,7 @@ import { HttpError } from '@/common/base/errors.ts'
 import { env } from '@/env.ts'
 import { type JWTPayload, jwtVerify, SignJWT } from 'jose'
 
-export interface Payload extends JWTPayload {
+interface Payload extends JWTPayload {
   role: 'admin' | 'user' | string
 }
 
@@ -35,8 +35,18 @@ export async function sign(payload: Payload) {
 export async function verify(token: string) {
   try {
     const { payload } = await jwtVerify<Payload>(token, secret)
-    return payload
-  } catch (error) {
-    throw new HttpError(400, 'BAD REQUEST', 'Token inválido ou expirado')
+    return { valid: true, payload }
+  } catch (err: any) {
+    if (err?.name === 'JWTExpired') {
+      return { valid: false, reason: 'expired' }
+    }
+    if (err?.name === 'JWSInvalid' || err?.name === 'JOSEError') {
+      return { valid: false, reason: 'invalid' }
+    }
+    return { valid: false, reason: 'unknown', error: err }
   }
+
+  // catch (error) {
+  //   throw new HttpError(400, 'BAD REQUEST', 'Token inválido ou expirado')
+  // }
 }

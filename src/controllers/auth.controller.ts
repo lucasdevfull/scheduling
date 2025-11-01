@@ -18,6 +18,7 @@ export const authController: FastifyPluginAsyncZod = async fastify => {
             data: z.object({
               accessToken: z.jwt(),
               refreshToken: z.jwt(),
+              role: z.string().nullable(),
             }),
           }),
           404: httpSchema,
@@ -28,12 +29,15 @@ export const authController: FastifyPluginAsyncZod = async fastify => {
     },
     async ({ body }, reply) => {
       const parse = loginSchema.parse(body)
-      const data = await authService.generate(body)
+      const { tokens, role } = await authService.generate(body)
       return reply.status(201).send({
         statusCode: 201,
         error: null,
         message: 'Usuário logado com sucesso',
-        data,
+        data: {
+          role,
+          ...tokens,
+        },
       })
     }
   )

@@ -12,3 +12,5 @@ export const envSchema = z.object({
 })
 
 export const env = envSchema.parse(process.env)
+
+//const FIREBASE_URL = 'https://firestore.googleapis.com/v1/projects/appmoveis-d536f'

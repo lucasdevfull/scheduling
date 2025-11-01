@@ -9,6 +9,7 @@ import {
 import { errorHandler } from './error.handler.ts'
 import { routes } from './routes.ts'
 import { createRequire } from 'node:module'
+import fastifyCors from '@fastify/cors'
 
 async function bootstrap() {
   const require = createRequire(import.meta.url)
@@ -18,6 +19,10 @@ async function bootstrap() {
   app.setSerializerCompiler(serializerCompiler)
 
   app.setErrorHandler(errorHandler)
+
+  app.register(fastifyCors, {
+    origin: 'http://localhost:8081',
+  })
 
   if (env.NODE_ENV === 'development') {
     app.register(require('@fastify/swagger'), {
@@ -55,10 +60,10 @@ async function bootstrap() {
   return app
 }
 
-export default async function handler(req: any, reply: any) {
-  const server = await bootstrap()
-  await server.ready()
-  server.server.emit('request', req, reply)
-}
+//export default async function handler(req: any, reply: any) {
+//  const server = await bootstrap()
+//  await server.ready()
+//  server.server.emit('request', req, reply)
+//}
 
 bootstrap()

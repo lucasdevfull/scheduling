@@ -65,6 +65,7 @@ export class AvailabilitiesServices {
 
   async updateService(id: number, data: UpdateService) {
     const service = await this.availabilitiesRepository.findById(id)
+    console.log('1')
     if (!service) {
       throw new NotFoundError('Serviço não encontrado')
     }
@@ -92,7 +93,7 @@ export class AvailabilitiesServices {
 
     try {
       await this.availabilitiesRepository.deleteAvailabilities(id, serviceId)
-      return { message: 'Deletado com sucesso' }
+      return
     } catch (error) {
       throw new InternalServerError('Erro interno no servidor')
     }
@@ -106,7 +107,7 @@ export class AvailabilitiesServices {
 
     try {
       await this.availabilitiesRepository.delete(serviceId)
-      return { message: 'Deletado com sucesso' }
+      return
     } catch (error) {
       throw new InternalServerError('Erro interno no servidor')
     }

@@ -13,6 +13,9 @@ export type UserRole = {
 }
 
 export type Token = {
-  refreshToken: string
-  accessToken: string
+  tokens: {
+    refreshToken: string
+    accessToken: string
+  }
+  role: string | null
 }
