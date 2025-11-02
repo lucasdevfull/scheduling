@@ -1,5 +1,4 @@
-import type { UserWithRole } from 'better-auth/plugins'
-import type { Login, Token, User, UserRole } from '../user.types.ts'
+import type { Login, Token, User } from '../user.types.ts'
 
 export interface UserEmail {
   id: string
@@ -7,18 +6,23 @@ export interface UserEmail {
 }
 
 export interface AccountEmail extends UserEmail {
-  password: string | null
+  accounts: Array<{
+    password: string | null
+  }>
   role: string | null
 }
 
 export interface IUserRepository {
-  findUserByEmail(email: string): Promise<UserEmail | null>
-  findAccountByEmail(email: string): Promise<Array<AccountEmail>>
-  createUser(data: User): Promise<UserRole>
+  //findUserByEmail(email: string): Promise<UserEmail | null>
+  findUserByEmail(email: string): Promise<FirebaseFirestore.DocumentData | null>
+  findAccountByEmail(email: string): Promise<AccountEmail | null>
+  //createUser(data: User): Promise<UserRole>
+  createUser(data: User): Promise<string>
 }
 
 export interface IUserService {
-  createUser(data: User): Promise<UserWithRole>
+  // createUser(data: User): Promise<UserRole>
+  createUser(data: User): Promise<string>
 }
 
 export interface IAuthService {

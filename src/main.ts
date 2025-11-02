@@ -49,21 +49,21 @@ async function bootstrap() {
   app.get('/', () => 'Hello word')
   routes.forEach(route => app.register(route, { prefix: '/api' }))
 
-  app.listen({ port: env.PORT }, (error, adress) => {
-    if (error) {
-      console.error(error)
-      process.exit(1)
-    }
-    console.log(`Server is running on port ${adress}`)
-  })
+  // app.listen({ port: env.PORT, host: '0.0.0.0' }, (error, adress) => {
+  //   if (error) {
+  //     console.error(error)
+  //     process.exit(1)
+  //   }
+  //   console.log(`Server is running on port ${adress}`)
+  // })
 
   return app
 }
 
-//export default async function handler(req: any, reply: any) {
-//  const server = await bootstrap()
-//  await server.ready()
-//  server.server.emit('request', req, reply)
-//}
+export default async function handler(req: any, reply: any) {
+  const server = await bootstrap()
+  await server.ready()
+  server.server.emit('request', req, reply)
+}
 
-bootstrap()
+//bootstrap()

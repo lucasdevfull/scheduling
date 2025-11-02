@@ -1,18 +1,20 @@
 import { ConflictError } from '@/common/errors.ts'
-import { UserRepository } from '@/repositories/user.repository.ts'
-import type { IUserService } from '@/types/interfaces/user.interface.ts'
+import type {
+  IUserRepository,
+  IUserService,
+} from '@/types/interfaces/user.interface.ts'
 import type { User } from '@/types/user.types.ts'
 import { genSalt, hash } from '@node-rs/bcrypt'
-import type { UserWithRole } from 'better-auth/plugins'
 import { randomInt } from 'node:crypto'
 
-export class UserService {
-  private repository: UserRepository
-  constructor(repository: UserRepository) {
+export class UserService implements IUserService {
+  private repository: IUserRepository
+  constructor(repository: IUserRepository) {
     this.repository = repository
   }
-  async createUser(data: User) {
+  async createUser(data: User): Promise<string> {
     const userExists = await this.repository.findUserByEmail(data.email)
+    console.log({ userExists })
     if (userExists) {
       throw new ConflictError('Usuário já existente')
     }
@@ -23,6 +25,5 @@ export class UserService {
       ...data,
       password,
     })
-    //return user
   }
 }

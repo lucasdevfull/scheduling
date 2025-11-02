@@ -8,6 +8,7 @@ import { AvailabilitiesServices } from '@/services/availabilites.services.ts'
 import type { FastifyPluginAsyncZod } from 'fastify-type-provider-zod'
 import { z } from 'zod'
 import { loginRequiredHook } from '@/hooks/login-required.hook.ts'
+import { adminPermission } from '@/hooks/admin.hook.ts'
 
 export const serviceController: FastifyPluginAsyncZod = async fastify => {
   const availabilitiesRepository = new AvailabilitiesRepository()
@@ -78,7 +79,7 @@ export const serviceController: FastifyPluginAsyncZod = async fastify => {
           409: httpSchema,
         },
       },
-      //onRequest: [loginRequiredHook],
+      onRequest: [loginRequiredHook, adminPermission],
     },
     async ({ body }, reply) => {
       const { id } = await availabilitiesServices.createAvailiabilities(body)
@@ -98,13 +99,13 @@ export const serviceController: FastifyPluginAsyncZod = async fastify => {
       schema: {
         tags: ['services'],
         params: z.object({
-          serviceId: z.coerce.number(),
+          serviceId: z.string(),
         }),
         body: updateServiceSchema,
         response: {
           200: httpSchema.extend({
             data: updateServiceSchema.extend({
-              id: z.number(),
+              id: z.string(),
               availabilities: z.array(
                 z.object({
                   id: z.number(),
@@ -117,7 +118,7 @@ export const serviceController: FastifyPluginAsyncZod = async fastify => {
           }),
         },
       },
-      onRequest: [loginRequiredHook],
+      onRequest: [loginRequiredHook, adminPermission],
     },
     async ({ body, params: { serviceId } }, reply) => {
       const data = await availabilitiesServices.updateService(serviceId, body)
@@ -135,14 +136,14 @@ export const serviceController: FastifyPluginAsyncZod = async fastify => {
       schema: {
         tags: ['services'],
         params: z.object({
-          serviceId: z.coerce.number(),
+          serviceId: z.string(),
         }),
       },
-      onRequest: [loginRequiredHook],
+      onRequest: [loginRequiredHook, adminPermission],
     },
     async ({ params: { serviceId } }, reply) => {
       await availabilitiesServices.delete(serviceId)
-      return reply.status(204)
+      return reply.status(204).send()
     }
   )
 }

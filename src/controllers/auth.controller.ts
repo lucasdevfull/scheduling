@@ -27,9 +27,10 @@ export const authController: FastifyPluginAsyncZod = async fastify => {
         },
       },
     },
-    async ({ body }, reply) => {
-      const parse = loginSchema.parse(body)
+    async ({ body, log }, reply) => {
+      log.info('Entrando no endpoint de login')
       const { tokens, role } = await authService.generate(body)
+      log.info('Retornando o token de acesso')
       return reply.status(201).send({
         statusCode: 201,
         error: null,

@@ -44,7 +44,7 @@ export class AvailabilitiesServices {
     }
   }
 
-  async findServiceById(id: number) {
+  async findServiceById(id: string) {
     const service = await this.availabilitiesRepository.findById(id)
     if (!service) {
       throw new NotFoundError('Serviço não encontrado')
@@ -52,7 +52,7 @@ export class AvailabilitiesServices {
     return service
   }
 
-  async findAvailabilitiesById(id: number, serviceId: number) {
+  async findAvailabilitiesById(id: string, serviceId: string) {
     const service = await this.availabilitiesRepository.findAvailabilitiesById(
       id,
       serviceId
@@ -63,9 +63,8 @@ export class AvailabilitiesServices {
     return service
   }
 
-  async updateService(id: number, data: UpdateService) {
+  async updateService(id: string, data: UpdateService) {
     const service = await this.availabilitiesRepository.findById(id)
-    console.log('1')
     if (!service) {
       throw new NotFoundError('Serviço não encontrado')
     }
@@ -85,7 +84,7 @@ export class AvailabilitiesServices {
     return result
   }
 
-  async deleteAvailibilities(id: number, serviceId: number) {
+  async deleteAvailibilities(id: string, serviceId: string) {
     const service = await this.availabilitiesRepository.findById(id)
     if (!service) {
       throw new NotFoundError('Serviço não encontrado')
@@ -99,7 +98,7 @@ export class AvailabilitiesServices {
     }
   }
 
-  async delete(serviceId: number) {
+  async delete(serviceId: string) {
     const service = await this.availabilitiesRepository.findById(serviceId)
     if (!service) {
       throw new NotFoundError('Serviço não encontrado')

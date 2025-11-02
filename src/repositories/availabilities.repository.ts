@@ -1,146 +1,3 @@
-// import { db, prisma } from '@/db/index.ts'
-// import { Service, UpdateService } from '@/types/availabilities.types.ts'
-// import { srtToTime } from '@/utils/datetime.ts'
-// import { v7 } from 'uuid'
-
-// export class AvailabilitiesRepository {
-//   async findAll(limit: number, cursor: number) {
-//     const result = await prisma.service.findMany({
-//       where: cursor ? { id: { gt: cursor } } : undefined,
-//       take: limit + 1,
-//       orderBy: { id: 'asc' },
-//       include: {
-//         availabilities: {
-//           select: {
-//             id: true,
-//             dayId: true,
-//             startTime: true,
-//             endTime: true,
-//           },
-//         },
-//       },
-//     })
-
-//     return {
-//       result,
-//       nextCursor: result.length !== 0 ? result[result.length - 1].id : null,
-//       hasNextPage: result.length > limit,
-//     }
-//   }
-
-//   async create({ name, availabilities }: Service) {
-//     return prisma.$transaction(async tx => {
-//       const service = await tx.service.create({
-//         data: {
-//           name,
-//           availabilities: {
-//             create: availabilities.map(a => ({
-//               dayId: a.dayId,
-//               startTime: srtToTime(a.startTime),
-//               endTime: srtToTime(a.endTime),
-//             })),
-//           },
-//         },
-//         include: { availabilities: true }, // retorna service + availabilities
-//       })
-//       return service
-//     })
-//   }
-
-//   async findById(id: number) {
-//     const data = await prisma.service.findUnique({
-//       where: { id },
-//       include: {
-//         availabilities: {
-//           select: {
-//             id: true,
-//             dayId: true,
-//             startTime: true,
-//             endTime: true,
-//           },
-//         },
-//       },
-//     })
-//     return data
-//   }
-
-//   async findAvailabilitiesById(id: number, serviceId: number) {
-//     const data = await prisma.availability.findUnique({
-//       where: { id, serviceId },
-//     })
-//     return data
-//   }
-
-//   async findByName(name: string) {
-//     const data = await prisma.service.findFirst({
-//       where: { name },
-//       include: {
-//         availabilities: {
-//           select: {
-//             id: true,
-//             dayId: true,
-//             startTime: true,
-//             endTime: true,
-//           },
-//         },
-//       },
-//     })
-//     return data
-//   }
-//   async update(id: number, data: UpdateService) {
-//     return prisma.service.update({
-//       where: { id },
-//       data: {
-//         name: data.name,
-//         availabilities: {
-//           // Itera sobre cada disponibilidade recebida
-//           upsert: data.availabilities.map(a => ({
-//             where: { id: a.id ?? 0 }, // se não tiver id, esse valor não vai achar nada
-//             update: {
-//               dayId: a.dayId,
-//               startTime: srtToTime(a.startTime),
-//               endTime: srtToTime(a.endTime),
-//             },
-//             create: {
-//               dayId: a.dayId,
-//               startTime: srtToTime(a.startTime),
-//               endTime: srtToTime(a.endTime),
-//             },
-//           })),
-//         },
-//       },
-//       include: {
-//         availabilities: {
-//           omit: {
-//             serviceId: true,
-//             createdAt: true,
-//             updatedAt: true,
-//           },
-//         },
-//       },
-//       omit: {
-//         createdAt: true,
-//       },
-//     })
-//   }
-//   async delete(id: number) {
-//     return prisma.service.delete({
-//       where: {
-//         id,
-//       },
-//     })
-//   }
-
-//   async deleteAvailabilities(id: number, serviceId: number) {
-//     return prisma.availability.delete({
-//       where: {
-//         serviceId,
-//         id,
-//       },
-//     })
-//   }
-// }
-
 import { HttpError } from '@/common/base/errors.ts'
 import { db } from '@/db/index.ts'
 import { Service, UpdateService } from '@/types/availabilities.types.ts'
@@ -227,6 +84,7 @@ export class AvailabilitiesRepository {
 
   // --- CREATE: gera ids numéricos para service e availability (counters) ---
   async create({ name, availabilities }: Service) {
+    console.log('teste')
     const serviceCol = db.collection('service')
     const availCol = db.collection('availability')
     const dayCol = db.collection('day')
@@ -367,10 +225,8 @@ export class AvailabilitiesRepository {
         : ad.dayId
           ? Number(ad.dayId)
           : null
-    const startTime = ad.startTime
-      ? new Date(`1970-01-01T${ad.startTime}Z`)
-      : null
-    const endTime = ad.endTime ? new Date(`1970-01-01T${ad.endTime}Z`) : null
+    const startTime = ad.startTime ? srtToTime(ad.startTime) : null
+    const endTime = ad.endTime ? srtToTime(ad.endTime) : null
 
     return {
       id: typeof ad.id === 'number' ? ad.id : Number(aDoc.id),
@@ -517,3 +373,283 @@ export class AvailabilitiesRepository {
     return { id: numericId, deleted: true }
   }
 }
+// import { prisma } from '@/db/index.ts'
+// import { Service, UpdateService } from '@/types/availabilities.types.ts'
+// import { srtToTime } from '@/utils/datetime.ts'
+
+// export class AvailabilitiesRepository {
+//   async findAll(limit: number, cursor?: string) {
+//     const result = await prisma.service.findMany({
+//       take: limit + 1,
+//       cursor: cursor ? { id: cursor } : undefined,
+//       skip: cursor ? 1 : 0,
+//       orderBy: { id: 'asc' },
+//       include: {
+//         availabilities: {
+//           select: {
+//             id: true,
+//             dayId: true,
+//             startTime: true,
+//             endTime: true,
+//           },
+//         },
+//       },
+//     })
+
+//     const hasNextPage = result.length > limit
+//     const slicedResult = result.slice(0, limit)
+
+//     return {
+//       result: slicedResult,
+//       nextCursor: hasNextPage ? slicedResult[slicedResult.length - 1].id : null,
+//       hasNextPage,
+//     }
+//   }
+
+//   async create({ name, availabilities }: Service) {
+//     return prisma.$transaction(async tx => {
+//       const service = await tx.service.create({
+//         data: {
+//           name,
+//           availabilities: {
+//             create: availabilities.map(a => ({
+//               dayId: a.dayId,
+//               startTime: srtToTime(a.startTime).toTimeString(),
+//               endTime: srtToTime(a.endTime).toTimeString(),
+//             })),
+//           },
+//         },
+//         include: { availabilities: true },
+//       })
+//       return service
+//     })
+//   }
+
+//   async findById(id: string) {
+//     return prisma.service.findUnique({
+//       where: { id },
+//       include: {
+//         availabilities: {
+//           select: {
+//             id: true,
+//             dayId: true,
+//             startTime: true,
+//             endTime: true,
+//           },
+//         },
+//       },
+//     })
+//   }
+
+//   async findAvailabilitiesById(id: string, serviceId: string) {
+//     return prisma.availability.findFirst({
+//       where: { id, serviceId },
+//     })
+//   }
+
+//   async findByName(name: string) {
+//     return prisma.service.findFirst({
+//       where: { name },
+//       include: {
+//         availabilities: {
+//           select: {
+//             id: true,
+//             dayId: true,
+//             startTime: true,
+//             endTime: true,
+//           },
+//         },
+//       },
+//     })
+//   }
+
+//   async update(id: string, data: UpdateService) {
+//     const { availabilities, name } = data
+
+//     return prisma.service.update({
+//       where: { id },
+//       data: {
+//         name,
+//         availabilities: {
+//           // Primeiro, atualiza os que já têm id
+//           updateMany: availabilities
+//             .filter(a => a.id)
+//             .map(a => ({
+//               where: { id: a.id! },
+//               data: {
+//                 dayId: a.dayId,
+//                 startTime: srtToTime(a.startTime).toTimeString(),
+//                 endTime: srtToTime(a.endTime).toTimeString(),
+//               },
+//             })),
+//           // Depois, cria os que não têm id
+//           create: availabilities
+//             .filter(a => !a.id)
+//             .map(a => ({
+//               dayId: a.dayId,
+//               startTime: srtToTime(a.startTime).toTimeString(),
+//               endTime: srtToTime(a.endTime).toTimeString(),
+//             })),
+//         },
+//       },
+//       include: {
+//         availabilities: true,
+//       },
+//     })
+//   }
+
+//   async delete(id: string) {
+//     return prisma.service.delete({
+//       where: { id },
+//     })
+//   }
+
+//   async deleteAvailabilities(id: string, serviceId: string) {
+//     return prisma.availability.deleteMany({
+//       where: { id, serviceId },
+//     })
+//   }
+// }
+
+// import { db, prisma } from '@/db/index.ts'
+// import { Service, UpdateService } from '@/types/availabilities.types.ts'
+// import { srtToTime } from '@/utils/datetime.ts'
+// import { v7 } from 'uuid'
+
+// export class AvailabilitiesRepository {
+//   async findAll(limit: number, cursor: number) {
+//     const result = await prisma.service.findMany({
+//       where: cursor ? { id: { gt: cursor } } : undefined,
+//       take: limit + 1,
+//       orderBy: { id: 'asc' },
+//       include: {
+//         availabilities: {
+//           select: {
+//             id: true,
+//             dayId: true,
+//             startTime: true,
+//             endTime: true,
+//           },
+//         },
+//       },
+//     })
+
+//     return {
+//       result,
+//       nextCursor: result.length !== 0 ? result[result.length - 1].id : null,
+//       hasNextPage: result.length > limit,
+//     }
+//   }
+
+//   async create({ name, availabilities }: Service) {
+//     return prisma.$transaction(async tx => {
+//       const service = await tx.service.create({
+//         data: {
+//           name,
+//           availabilities: {
+//             create: availabilities.map(a => ({
+//               dayId: a.dayId,
+//               startTime: srtToTime(a.startTime),
+//               endTime: srtToTime(a.endTime),
+//             })),
+//           },
+//         },
+//         include: { availabilities: true }, // retorna service + availabilities
+//       })
+//       return service
+//     })
+//   }
+
+//   async findById(id: number) {
+//     const data = await prisma.service.findUnique({
+//       where: { id },
+//       include: {
+//         availabilities: {
+//           select: {
+//             id: true,
+//             dayId: true,
+//             startTime: true,
+//             endTime: true,
+//           },
+//         },
+//       },
+//     })
+//     return data
+//   }
+
+//   async findAvailabilitiesById(id: number, serviceId: number) {
+//     const data = await prisma.availability.findUnique({
+//       where: { id, serviceId },
+//     })
+//     return data
+//   }
+
+//   async findByName(name: string) {
+//     const data = await prisma.service.findFirst({
+//       where: { name },
+//       include: {
+//         availabilities: {
+//           select: {
+//             id: true,
+//             dayId: true,
+//             startTime: true,
+//             endTime: true,
+//           },
+//         },
+//       },
+//     })
+//     return data
+//   }
+//   async update(id: number, data: UpdateService) {
+//     return prisma.service.update({
+//       where: { id },
+//       data: {
+//         name: data.name,
+//         availabilities: {
+//           // Itera sobre cada disponibilidade recebida
+//           upsert: data.availabilities.map(a => ({
+//             where: { id: a.id ?? 0 }, // se não tiver id, esse valor não vai achar nada
+//             update: {
+//               dayId: a.dayId,
+//               startTime: srtToTime(a.startTime),
+//               endTime: srtToTime(a.endTime),
+//             },
+//             create: {
+//               dayId: a.dayId,
+//               startTime: srtToTime(a.startTime),
+//               endTime: srtToTime(a.endTime),
+//             },
+//           })),
+//         },
+//       },
+//       include: {
+//         availabilities: {
+//           omit: {
+//             serviceId: true,
+//             createdAt: true,
+//             updatedAt: true,
+//           },
+//         },
+//       },
+//       omit: {
+//         createdAt: true,
+//       },
+//     })
+//   }
+//   async delete(id: number) {
+//     return prisma.service.delete({
+//       where: {
+//         id,
+//       },
+//     })
+//   }
+
+//   async deleteAvailabilities(id: number, serviceId: number) {
+//     return prisma.availability.delete({
+//       where: {
+//         serviceId,
+//         id,
+//       },
+//     })
+//   }
+// }

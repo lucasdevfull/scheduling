@@ -2,9 +2,6 @@ import { PrismaClient } from '@prisma/client'
 import serviceAccount from '../../appsmoveis.json' with { type: 'json' }
 import admin from 'firebase-admin'
 
-export let fb: boolean
-
-// export const db = drizzle(env.DATABASE_URL, { schema, casing: 'snake_case' })
 export const prisma = new PrismaClient({
   log: ['query'],
 })
@@ -16,15 +13,11 @@ async function main() {
 main()
   .then(async () => {
     await prisma.$connect()
-    fb = false
-    console.log(fb)
   })
   .catch(async e => {
-    fb = true
     await prisma.$disconnect()
-    //process.exit(1)
+    process.exit(1)
   })
-  .finally(() => console.log(fb))
 
 admin.initializeApp({
   credential: admin.credential.cert({
